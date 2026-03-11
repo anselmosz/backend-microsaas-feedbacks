@@ -1,0 +1,7 @@
+// classe de erro global - para criar erros padronizados
+export class AppError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
+  }
+}
