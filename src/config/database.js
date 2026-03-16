@@ -1,5 +1,5 @@
 import knex from "knex";
-import knexfile from "../../knexfile";
+import knexfile from "../../knexfile.js";
 
 // Define qual é o tipo de ambiente rodando - utiliza o ambiente do NODE_ENV (definido nos comandos de execução) e por padrão, o de desenvolvimento
 const enviroment = process.env.NODE_ENV || "development";
