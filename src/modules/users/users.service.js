@@ -59,6 +59,7 @@ export default {
     }
 
     const resultado = await usersRepository.atualizarUsuario(payload, userId, accountId);
+
     if (!resultado || resultado.length === 0) throw new AppError("Usuário não encontrado", 404);
 
     const usuario = await usersRepository.buscarUsuarioPorID(userId, accountId);
@@ -68,8 +69,25 @@ export default {
 
   excluirUsuario: async(userId, accountId) => {
     const resultado = await usersRepository.deletarUsuario(userId, accountId);
+
     if (!resultado) throw new AppError("Usuario não encontrado!", 404);
 
     return resultado;
-  }
+  },
+
+  ativarUsuario: async(userId, accountId) => {
+    const resultado = await usersRepository.ativarUsuario(userId, accountId);
+    
+    if (!resultado) throw new AppError("Usuario não encontrado!", 404);
+
+    return resultado;
+  },
+
+  desativarUsuario: async(userId, accountId) => {
+    const resultado = await usersRepository.desativarUsuario(userId, accountId);
+
+    if (!resultado) throw new AppError("Usuario não encontrado!", 404);
+
+    return resultado;
+  },
 };

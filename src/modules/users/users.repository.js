@@ -25,4 +25,13 @@ export default {
   deletarUsuario: (userId, accountId) => {
     return database.delete().from("users").where({user_id: userId, account_id: accountId});
   },
+
+  ativarUsuario: (userId, accountId) => {
+    return database("users").update({user_status: "active"}).where({user_id: userId, account_id: accountId});
+  },
+
+  desativarUsuario: (userId, accountId) => {
+    return database("users").update({user_status: "inactive"}).where({user_id: userId, account_id: accountId});
+  },
+
 };

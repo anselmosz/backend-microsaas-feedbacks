@@ -30,5 +30,17 @@ export default {
     const resultado = await usersService.excluirUsuario(req.params.id, req.user.accountId);
     
     return res.status(200).json({message: "dados do usuário apagados", result: resultado});
+  }),
+
+  ativarUsuario: asyncHandler(async (req, res) => {
+    await usersService.ativarUsuario(req.params.id, req.user.accountId);
+
+    return res.status(200).json({message: "Usuário ativado"});
+  }),
+  
+  desativarUsuario: asyncHandler(async (req, res) => {
+    await usersService.desativarUsuario(req.params.id, req.user.accountId);
+
+    return res.status(200).json({message: "Usuário desativado"});
   })
 };

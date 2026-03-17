@@ -8,6 +8,8 @@ router.get("/", decodeToken, usersController.listarUsuarios);
 router.get("/:id", decodeToken, usersController.buscarUsuarioPorID);
 router.post("/", decodeToken, adminOnly, usersController.criarUsuario);
 router.put("/:id", decodeToken, validateIsTheAdminOrUser, usersController.atualizarDadosDoUsuario);
+router.patch("/:id/activate", decodeToken, adminOnly, usersController.ativarUsuario);
+router.patch("/:id/deactivate", decodeToken, adminOnly, usersController.desativarUsuario);
 router.delete("/:id", decodeToken, adminOnly, usersController.excluirUsuario);
 
 export default router;
