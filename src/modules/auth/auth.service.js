@@ -46,24 +46,55 @@ export default {
     }
   },
 
-  gerarToken: async(data) => {
+  login: async(data) => {
     if (!data.email || !data.senha) throw new AppError("Informe email e senha para realizar login", 400);
-
-    const usuario = await authRepository.validarCredenciais(data.email);
+    
+    const usuario = await usersRepository.validarCredenciais(data.email);
     if (!usuario) throw new AppError("E-mail ou senha incorretos", 403);
-
+    
+    if (usuario.locked_until < Date.now) {
+      await usersRepository.removerBloqueio(usuario.user_id, usuario.account_id);
+    }
+    
     const senhaValida = await bcrypt.compare(data.senha, usuario.password_hash);
-    if(!senhaValida) throw new AppError("E-mail ou senha incorretos", 403);
+
+    if (usuario.user_status == "inactive") throw new AppError("Usuário inativo", 403);
+
+    if (usuario.locked_until && new Date() < new Date(usuario.locked_until)) throw new AppError("Usuário temporariamente bloqueado. Tente novamente mais tarde.", 401);
+
+    if(!senhaValida) {
+      const tentativas = usuario.login_attempts +1;
+      await usersRepository.incrementaTentativasDeLogin(usuario.user_id, usuario.account_id, tentativas);
+
+      if (tentativas >= 3) {
+        const lockDate = new Date(); 
+        
+        lockDate.setMinutes(lockDate.getMinutes() + 2);
+        
+        await usersRepository.bloquearAcessoPorUmTempo(usuario.user_id, usuario.account_id, lockDate);
+        throw new AppError("Usuário bloqueado por múltiplas tentativas inválidas.", 403);
+      }
+      
+      throw new AppError("E-mail ou senha incorretos", 403);
+    }
+
+    await usersRepository.resetarTentativasDeLogin(usuario.user_id, usuario.account_id);
 
     delete usuario.password_hash;
+
+    const lastLogin = new Date();
+
+    lastLogin.setDate(lastLogin.getDate());
 
     const payload = {
       userId: usuario.user_id,
       accountId: usuario.account_id,
       role: usuario.role
     };
-
+    
     const token = gerarToken(payload);
+    
+    await usersRepository.registrarUltimoLogin(usuario.user_id, usuario.account_id, lastLogin);
 
     return token;
   }

@@ -6,12 +6,36 @@ export default {
     return query("users").insert(data);
   },
   
+  validarCredenciais: (email) => {
+    return database.select('email', 'password_hash', 'user_id', 'account_id', 'role', 'login_attempts', 'locked_until').from("users").where({email: email}).first();
+  },
+
+  registrarUltimoLogin: (userId, accountId, lastLoginAt) => {
+    return database("users").update({last_login_at: lastLoginAt}).where({user_id: userId, account_id: accountId});
+  },
+
+  incrementaTentativasDeLogin: (userId, accountId, tentativas) => {
+    return database("users").update({login_attempts: tentativas}).where({user_id: userId, account_id: accountId});
+  },
+
+  resetarTentativasDeLogin: (userId, accountId) => {
+    return database("users").update({login_attempts: 0}).where({user_id: userId, account_id: accountId});
+  },
+  
+  bloquearAcessoPorUmTempo: (userId, accountId, lockTime) => {
+    return database("users").update({locked_until: lockTime}).where({user_id: userId, account_id: accountId});
+  },
+  
+  removerBloqueio: (userId, accountId) => {
+    return database("users").update({locked_until: null}).where({user_id: userId, account_id: accountId});
+  },
+
   listarUsuarios: (accountId) => {
-    return database.select('user_id','account_id', 'name', 'email', 'role', 'user_status', 'created_at', 'updated_at').from("users").where({account_id: accountId});
+    return database.select('user_id','account_id', 'name', 'email', 'role', 'user_status', 'created_at', 'updated_at', 'last_login_at').from("users").where({account_id: accountId});
   },
 
   buscarUsuarioPorID: (userId, accountId) => {
-    return database.select('user_id','account_id', 'name', 'email', 'role', 'user_status', 'created_at', 'updated_at').from("users").where({user_id: userId, account_id: accountId});
+    return database.select('user_id','account_id', 'name', 'email', 'role', 'user_status', 'created_at', 'updated_at', 'last_login_at').from("users").where({user_id: userId, account_id: accountId});
   },
 
   buscarEmailDoUsuario: (email) => {

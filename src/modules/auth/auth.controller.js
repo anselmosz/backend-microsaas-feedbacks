@@ -9,7 +9,7 @@ export default {
   }),
 
   login: asyncHandler (async (req, res) => {
-    const token = await authService.gerarToken(req.body);
+    const token = await authService.login(req.body);
 
     return res.status(201).json({message: "Token criado com sucesso", token: token});
   }),
