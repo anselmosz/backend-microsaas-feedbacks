@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt"
 import { AppError } from "../../utils/AppError.js";
 import usersRepository from "./users.repository.js";
-import { database } from "../../config/database.js";
+import { randomGenerate } from "../../utils/randomGenerate.js";
 
 export default {
   criarUsuario: async (data, accountId) => {    
@@ -10,18 +10,15 @@ export default {
     const validarEmail = await usersRepository.buscarEmailDoUsuario(data.email);
     if (validarEmail) throw new AppError("Já existe usuário com este email", 400);
 
-    if (!data.name || !data.email || !data.senha) throw new AppError("Campos obrigatórios para criar usuário pendentes", 400);
+    if (!data.name || !data.email || !data.role) throw new AppError("Campos obrigatórios para criar usuário pendentes", 400);
     
-    const SALT_ROUNDS = 10; // número de rounds para o bcrypt - pode ser alterado conforme a necessidade
-    
-    // gera o hash da senha utilizando bcrypt e o número de rounds definido
-    const senhaHash = await bcrypt.hash(data.senha, SALT_ROUNDS);
+    const senhaTemporaria = randomGenerate(8);
 
     const payload = {
       account_id: accountId,
       name: data.name,
       email: data.email,
-      password_hash: senhaHash,
+      password_hash: senhaTemporaria,
       role: data.role
     };
 

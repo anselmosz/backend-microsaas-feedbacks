@@ -7,7 +7,7 @@ export default {
   },
   
   validarCredenciais: (email) => {
-    return database.select('email', 'password_hash', 'user_id', 'account_id', 'role', 'login_attempts', 'locked_until').from("users").where({email: email}).first();
+    return database.select('email', 'password_hash', 'user_id', 'account_id', 'role', 'login_attempts', 'locked_until', 'must_change_password').from("users").where({email: email}).first();
   },
 
   registrarUltimoLogin: (userId, accountId, lastLoginAt) => {
@@ -28,6 +28,10 @@ export default {
   
   removerBloqueio: (userId, accountId) => {
     return database("users").update({locked_until: null}).where({user_id: userId, account_id: accountId});
+  },
+
+  redefinirSenha: (senhaAtual, senhaNova, userEmail) => {
+    return database("users").update({password_hash: senhaNova, must_change_password: false}).where({password_hash: senhaAtual, email: userEmail})
   },
 
   listarUsuarios: (accountId) => {
