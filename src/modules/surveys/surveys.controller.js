@@ -19,4 +19,16 @@ export default {
 
     return res.status(200).json({survey: pesquisa});
   }),
+
+  ativarPesquisa: asyncHandler(async (req, res) => {
+    await surveysService.ativarPesquisa(req.params.id, req.user.accountId);
+
+    return res.status(200).json({message: "Pesquisa ativada"});
+  }),
+
+  desativarPesquisa: asyncHandler(async (req, res) => {
+    await surveysService.desativarPesquisa(req.params.id, req.user.accountId);
+
+    return res.status(200).json({message: "Pesquisa desativada"});
+  }),
 }

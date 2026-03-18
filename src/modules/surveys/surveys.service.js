@@ -33,5 +33,19 @@ export default {
     if (!pesquisa || pesquisa.length === 0) throw new AppError("Pesquisa não encontradas", 404);
 
     return pesquisa;
-  }
+  },
+
+  ativarPesquisa: async (accountId, surveyId) => {
+    if (!accountId) throw new AppError("Conta não informada", 400);
+
+    const resultado = await surveysRepository.ativarPesquisa(accountId, surveyId);
+    return resultado;
+  },
+  
+  desativarPesquisa: async (accountId, surveyId) => {
+    if (!accountId) throw new AppError("Conta não informada", 400);
+
+    const resultado = await surveysRepository.desativarPesquisa(accountId, surveyId);
+    return resultado;
+  },
 }
