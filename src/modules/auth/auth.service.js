@@ -29,7 +29,8 @@ export default {
       name: userData.name,
       email: userData.email,
       password_hash: senhaHash,
-      role: "admin"
+      role: "admin",
+      must_change_password: false
     }
 
     const [usuario] = await usersRepository.criarUsuario(user_payload);
@@ -52,6 +53,8 @@ export default {
     const usuario = await usersRepository.validarCredenciais(data.email);
     if (!usuario) throw new AppError("E-mail ou senha incorretos", 403);
     
+    if (usuario.must_change_password === 1) throw new AppError("Senha temporária. Necessário redefinir senha", 403);
+
     if (usuario.locked_until < Date.now) {
       await usersRepository.removerBloqueio(usuario.user_id, usuario.account_id);
     }
@@ -97,5 +100,26 @@ export default {
     await usersRepository.registrarUltimoLogin(usuario.user_id, usuario.account_id, lastLogin);
 
     return token;
-  }
+  },
+
+  redefinirSenha: async (data) => {
+    if (!data.email || !data.senha || !data.senhaNova || !data.confirmarSenha) throw new AppError("Dados obrigatórios não informados", 403);
+
+    if (!data.email && !data.senha) throw new AppError("Informe email e senha para realizar o reset", 401);
+    
+    const usuario = await usersRepository.validarCredenciais(data.email);
+    if (!usuario) throw new AppError("E-mail ou senha incorretos", 403);
+
+    if (data.senha !== usuario.password_hash) throw new AppError("E-mail ou senha incorretos", 403);
+
+    if (data.senhaNova !== data.confirmarSenha) throw new AppError("As senhas devem ser iguais", 401);
+
+    const SALT_ROUNDS = 10;
+
+    const senhaHash = await bcrypt.hash(data.confirmarSenha, SALT_ROUNDS);
+
+    const resultado = await usersRepository.redefinirSenha(data.senha, senhaHash, data.email);
+
+    return resultado;
+  },
 }

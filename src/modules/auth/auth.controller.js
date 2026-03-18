@@ -13,4 +13,10 @@ export default {
 
     return res.status(201).json({message: "Token criado com sucesso", token: token});
   }),
+
+  redefinirSenha: asyncHandler(async (req, res) => {
+    await authService.redefinirSenha(req.body);
+
+    return res.status(201).json({message: "Senha alterada"});
+  }),
 }
