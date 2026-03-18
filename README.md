@@ -1,4 +1,4 @@
-## 📌 Task Feedback API
+# 📌 Task Feedback API
 
 Backend de um micro-SaaS para **coleta e análise de feedback de clientes** através de pesquisas personalizadas.
 
@@ -35,6 +35,8 @@ Atualmente o sistema possui os seguintes recursos implementados:
 * Registro de conta
 * Criação automática de usuário administrador
 * Login com geração de token JWT
+* Criação de usuário com senha aleatória
+* Redefinição de senha com base em dados de login
 
 ### Gestão de usuários
 
@@ -43,6 +45,7 @@ Atualmente o sistema possui os seguintes recursos implementados:
 * Buscar usuário por ID
 * Atualizar usuário
 * Remover usuário
+* Ativar ou desativar um usuário
 
 ### Segurança
 
@@ -84,7 +87,7 @@ Funcionalidades que serão adicionadas nas próximas etapas:
 
 ---
 
-# 🏗 Arquitetura do projeto
+# 🏛️ Arquitetura do projeto
 
 O projeto segue uma arquitetura em camadas:
 
@@ -145,6 +148,7 @@ Responsável por:
 * registro de contas
 * autenticação
 * geração de token JWT
+* bloqueio de acesso
 
 ### users
 
@@ -153,6 +157,7 @@ Responsável por:
 * CRUD de usuários
 * gerenciamento de permissões
 * associação de usuários a contas
+* desativar ou ativar usuários
 
 ### surveys
 
@@ -205,7 +210,7 @@ Responsável por:
 
 # 🔌 Endpoints da API
 
-## Auth
+## 🔒 Auth
 
 Responsável por autenticação e criação de contas.
 
@@ -213,6 +218,7 @@ Responsável por autenticação e criação de contas.
 | ------ | -------------- | ----------------------------------- |
 | POST   | /auth/register | Criar conta e usuário administrador |
 | POST   | /auth/login    | Login e geração de token JWT        |
+| POST   | /auth/reset    | Reset de senha do usuário           |
 
 ### Exemplo de dados para registro
 
@@ -240,9 +246,21 @@ Responsável por autenticação e criação de contas.
 
 ```
 
+### Exemplo de dados para reset
+
+```json
+{
+    "email": "usuario@empresa.com.br",
+    "senha": "senha@1234",
+    "senhaNova": "1234@senha",
+    "confirmarSenha": "12334@senha"
+}
+
+```
+
 ---
 
-# 👤 Users
+## 👤 Users
 
 Endpoints para gerenciamento de usuários.
 
@@ -252,13 +270,54 @@ Endpoints para gerenciamento de usuários.
 Authorization: Bearer TOKEN
 ```
 
-| Método | Endpoint   | Descrição             |
-| ------ | ---------- | --------------------- |
-| GET    | /users     | Listar usuários       |
-| GET    | /users/:id | Buscar usuário por ID |
-| POST   | /users     | Criar novo usuário    |
-| PUT    | /users/:id | Atualizar usuário     |
-| DELETE | /users/:id | Remover usuário       |
+| Método | Endpoint             | Descrição                                 |
+| ------ | -------------------- | ----------------------------------------- |
+| GET    | /users               | Listar usuários                           |
+| GET    | /users/id            | Buscar usuário por ID                     |
+| POST   | /users               | Criar novo usuário com senha aleatória    |
+| PUT    | /users/id            | Atualizar usuário                         |
+| DELETE | /users/id            | Remover usuário                           |
+| PATCH  | /users/id/activate   | Ativar usuário                            |
+| PATCH  | /users/id/deactivate | Desativar usuário                         |
+
+### Exemplo de dados para criação de usuário
+
+```json
+{
+    "name" : "Usuário",
+    "email": "user@empresa.com.br",
+    "role": "member"
+}
+```
+
+---
+
+## 🔎 Surveys
+
+Endpoints para gerenciamento de pesquisas.
+
+⚠ Todas as rotas requerem **token JWT no header Authorization**
+
+```
+Authorization: Bearer TOKEN
+```
+
+| Método | Endpoint               | Descrição              |
+| ------ | ---------------------- | ---------------------- |
+| POST   | /surveys               | Criar nova pesquisa    |
+| GET    | /surveys               | Listar pesquisas       |
+| GET    | /surveys/id            | Buscar pesquisa por ID |
+| PATCH  | /surveys/id/activate   | Ativar pesquisa        | 
+| PATCH  | /surveys/id/deactivate | Desativar pesquisa     | 
+
+### Exemplo de dados para criação de pesquisa
+
+```json
+{
+    "title": "nome da pesquisa",
+    "description": "descrição da pesquisa"
+}
+```
 
 ---
 
@@ -287,15 +346,17 @@ Crie um arquivo `.env` baseado no `.env.example`
 ```
 NODE_ENV=development
 
+PORT=3000
+
 DB_CLIENT=mysql2
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=database_name
 DB_USER=user
-DB_USER_PASSWORD=password
+DB_PASSWORD=password
 
-PORT=3000
 JWT_SECRET=seu_secret
+JWT_EXPIRES_IN=tempo_de_expiracao_do_jwt
 ```
 
 ---
